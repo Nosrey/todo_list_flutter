@@ -69,6 +69,33 @@ class Home extends StatelessWidget {
                       ),
                     ),
                   ),
+                  Container(
+                    margin: EdgeInsets.only(bottom: 20, right: 20),
+                    width: 60,
+                    // elimino el paddding
+                    padding: EdgeInsets.all(0),
+                    child: ElevatedButton(
+                      child: Text(
+                        '+',
+                        // centro el texto en el botón
+                        textAlign: TextAlign.start,
+                        style: TextStyle(
+                          fontSize: 40,
+                          color: Colors.white,
+                        ),
+                      ),
+                      onPressed: () {},
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: tdBlue,
+                        minimumSize: Size(60, 60),
+                        maximumSize: Size(60, 60),
+                        elevation: 10,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(5),
+                        ),
+                      ),
+                    ),
+                  ),
                 ],
               ))
         ],
