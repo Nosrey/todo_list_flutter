@@ -44,7 +44,7 @@ class Home extends StatelessWidget {
               alignment: Alignment.bottomCenter,
               child: Row(
                 children: [
-                  Expanded(
+                  Expanded(                
                     child: Container(
                       margin: EdgeInsets.only(bottom: 20, right: 20, left: 20),
                       padding:
@@ -69,33 +69,24 @@ class Home extends StatelessWidget {
                       ),
                     ),
                   ),
-                  Container(
-                    margin: EdgeInsets.only(bottom: 20, right: 20),
-                    width: 60,
-                    // elimino el paddding
-                    padding: EdgeInsets.all(0),
-                    child: ElevatedButton(
-                      child: Text(
-                        '+',
-                        // centro el texto en el botón
-                        textAlign: TextAlign.start,
-                        style: TextStyle(
-                          fontSize: 40,
-                          color: Colors.white,
+                 Container(
+                      margin: EdgeInsets.only(bottom: 20, right: 20),
+                      padding: EdgeInsets.all(0),
+                      width: 60,
+                      child: ElevatedButton(
+                        child: Image.asset('assets/images/plus.png'),
+                        onPressed: () {},
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.red,
+                          minimumSize: Size(65, 65),
+                          elevation: 10,
+                          padding: EdgeInsets.symmetric(horizontal: 20),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(5),
+                          ),
                         ),
                       ),
-                      onPressed: () {},
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: tdBlue,
-                        minimumSize: Size(60, 60),
-                        maximumSize: Size(60, 60),
-                        elevation: 10,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(5),
-                        ),
-                      ),
-                    ),
-                  ),
+                    ),             
                 ],
               ))
         ],
