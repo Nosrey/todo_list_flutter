@@ -3,9 +3,14 @@ import '../constants/colors.dart';
 import '../widgets/todo_item.dart';
 import '../model/todo.dart';
 
-class Home extends StatelessWidget {
+class Home extends StatefulWidget {
   Home({super.key});
 
+  @override
+  _HomeState createState() => _HomeState();
+}
+
+class _HomeState extends State<Home> {
   final todosList = ToDo.todoList();
 
   @override
@@ -19,7 +24,7 @@ class Home extends StatelessWidget {
             padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
             child: Column(
               children: [
-                SearchBox(),
+                searchBox(),
                 Expanded(
                   child: ListView(
                     children: [
@@ -33,7 +38,12 @@ class Home extends StatelessWidget {
                           ),
                         ),
                       ),
-                      for (ToDo todoo in todosList) TodoItem(todo: todoo),
+                      for (ToDo todoo in todosList)
+                        TodoItem(
+                          todo: todoo,
+                          onDeleteItem: _deleteToDoItem,
+                          onToDoChanged: _handleToDoChange,
+                        ),
                     ],
                   ),
                 ),
@@ -44,7 +54,7 @@ class Home extends StatelessWidget {
               alignment: Alignment.bottomCenter,
               child: Row(
                 children: [
-                  Expanded(                
+                  Expanded(
                     child: Container(
                       margin: EdgeInsets.only(bottom: 20, right: 20, left: 20),
                       padding:
@@ -69,24 +79,25 @@ class Home extends StatelessWidget {
                       ),
                     ),
                   ),
-                 Container(
-                      margin: EdgeInsets.only(bottom: 20, right: 20),
-                      padding: EdgeInsets.all(0),
-                      width: 60,
-                      child: ElevatedButton(
-                        child: Image.asset('assets/images/plus.png'),
-                        onPressed: () {},
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red,
-                          minimumSize: Size(65, 65),
-                          elevation: 10,
-                          padding: EdgeInsets.symmetric(horizontal: 20),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(5),
-                          ),
+                  Container(
+                    width: 60,
+                    height: 60,
+                    margin: EdgeInsets.only(bottom: 20, right: 20),
+                    padding: EdgeInsets.all(0),
+                    child: ElevatedButton(
+                      child: Image.asset('assets/images/plus.png'),
+                      onPressed: () {},
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: Size(60, 60),
+                        backgroundColor: tdBlue,
+                        elevation: 10,
+                        padding: EdgeInsets.symmetric(horizontal: 20),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
                         ),
                       ),
-                    ),             
+                    ),
+                  ),
                 ],
               ))
         ],
@@ -94,30 +105,19 @@ class Home extends StatelessWidget {
     );
   }
 
-  AppBar _buildAppBar() {
-    return AppBar(
-      backgroundColor: tdBGColor,
-      elevation: 0,
-      title: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-        Icon(Icons.menu, color: tdBlack, size: 30),
-        Container(
-            height: 40,
-            width: 40,
-            child: ClipRRect(
-                borderRadius: BorderRadius.circular(20),
-                child: Image.asset('assets/images/avatar.jpg')))
-      ]),
-    );
+  void _handleToDoChange(ToDo todo) {
+    setState(() {
+      todo.isDone = !todo.isDone;
+    });
   }
-}
 
-class SearchBox extends StatelessWidget {
-  const SearchBox({
-    super.key,
-  });
+  void _deleteToDoItem(String id) {
+    setState(() {
+      todosList.removeWhere((item) => item.id == id);
+    });
+  }
 
-  @override
-  Widget build(BuildContext context) {
+  Widget searchBox() {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 15),
       decoration: BoxDecoration(
@@ -136,4 +136,20 @@ class SearchBox extends StatelessWidget {
       ),
     );
   }
+}
+
+AppBar _buildAppBar() {
+  return AppBar(
+    backgroundColor: tdBGColor,
+    elevation: 0,
+    title: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+      Icon(Icons.menu, color: tdBlack, size: 30),
+      Container(
+          height: 40,
+          width: 40,
+          child: ClipRRect(
+              borderRadius: BorderRadius.circular(20),
+              child: Image.asset('assets/images/avatar.jpg')))
+    ]),
+  );
 }
