@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../constants/colors.dart';
 import '../widgets/todo_item.dart';
 import '../model/todo.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert'; // Asegúrate de importar esta librería
 
 class Home extends StatefulWidget {
   Home({super.key});
@@ -17,8 +19,24 @@ class _HomeState extends State<Home> {
 
   @override
   void initState() {
-    _foundToDo = todosList;
     super.initState();
+    print('initState salió');
+    _loadToDos();
+    _foundToDo = todosList;
+  }
+
+  // quiero cargar la lista de todos del shared preferences
+  void _loadToDos() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    List<String>? todos = prefs.getStringList('todos');
+    print('ya cargué los todos');
+    if (todos != null) {
+      todosList.clear();
+      todosList.addAll(todos.map((todo) => ToDo.fromJson(jsonDecode(todo))));
+      setState(() {
+        _foundToDo = todosList;
+      });
+    }
   }
 
   @override
@@ -120,21 +138,28 @@ class _HomeState extends State<Home> {
     setState(() {
       todo.isDone = !todo.isDone;
     });
+    _saveToDos();
   }
 
   void _deleteToDoItem(String id) {
     setState(() {
       todosList.removeWhere((item) => item.id == id);
     });
+    _saveToDos();
   }
 
   void _addToDoItem(String toDo) {
     setState(() {
+      // reviso si el texto del todo no está vacío
+      if (toDo.isEmpty) {
+        return;
+      }
       todosList.add(ToDo(
         id: DateTime.now().microsecondsSinceEpoch.toString(),
         todoText: toDo,
       ));
     });
+    _saveToDos();
     _todoController.clear();
   }
 
@@ -153,6 +178,14 @@ class _HomeState extends State<Home> {
     setState(() {
       _foundToDo = results;
     });
+  }
+
+  // quiero guardar la lista de todos en el shared preferences
+  void _saveToDos() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    List<String> todos =
+        todosList.map((todo) => jsonEncode(todo.toJson())).toList();
+    prefs.setStringList('todos', todos);
   }
 
   Widget searchBox() {
