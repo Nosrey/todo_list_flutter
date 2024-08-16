@@ -5,6 +5,7 @@ import '../model/todo.dart';
 import '../widgets/icon_selector.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert'; // Asegúrate de importar esta librería
+import '../constants/icons.dart'; // Asegúrate de importar esta librería
 
 class Home extends StatefulWidget {
   Home({super.key});
@@ -16,13 +17,17 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   bool _isIconSelectorVisible = false;
   final todosList = ToDo.todoList();
+  // declaro la variable iconProfile de donde de imagePaths tomo la primera del array
+  String iconProfile = imagePaths[0];
   List<ToDo> _foundToDo = [];
   final _todoController = TextEditingController();
+  final _filterController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     _loadToDos();
+    _loadProfileIcon();
     _foundToDo = todosList;
   }
 
@@ -34,6 +39,7 @@ class _HomeState extends State<Home> {
           backgroundColor: tdBGColor,
           appBar: _buildAppBar(
             _toggleIconSelector,
+            iconProfile: iconProfile,
           ),
           body: Stack(
             children: [
@@ -48,19 +54,30 @@ class _HomeState extends State<Home> {
                           Container(
                             margin: EdgeInsets.only(top: 50, bottom: 20),
                             child: Text(
-                              'All ToDos',
+                              'Lista de tareas',
                               style: TextStyle(
                                 fontSize: 30,
                                 fontWeight: FontWeight.w500,
                               ),
                             ),
                           ),
-                          for (ToDo todoo in _foundToDo.reversed)
-                            TodoItem(
-                              todo: todoo,
-                              onDeleteItem: _deleteToDoItem,
-                              onToDoChanged: _handleToDoChange,
-                            ),
+                          if (_foundToDo.isEmpty)
+                            Center(
+                              child: Text(
+                                'Sin tareas aún',
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  color: tdGrey,
+                                ),
+                              ),
+                            )
+                          else
+                            for (ToDo todoo in _foundToDo.reversed)
+                              TodoItem(
+                                todo: todoo,
+                                onDeleteItem: _deleteToDoItem,
+                                onToDoChanged: _handleToDoChange,
+                              ),
                         ],
                       ),
                     ),
@@ -130,7 +147,10 @@ class _HomeState extends State<Home> {
             color: Colors.black.withOpacity(0.3),
             onDismiss: _toggleIconSelector,
           ),
-          IconSelector(),
+          IconSelector(
+              onPressed: _toggleIconSelector,
+              icon: iconProfile,
+              saveProfileIcon: _saveProfileIcon),
         ],
       ],
     );
@@ -141,6 +161,23 @@ class _HomeState extends State<Home> {
       todo.isDone = !todo.isDone;
     });
     _saveToDos();
+  }
+
+  // funcion que guarda el profileIcon en la variable iconProfile en shared preferences
+  void _saveProfileIcon(String icon) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString('profileIcon', icon);
+    setState(() {
+      iconProfile = icon;
+    });
+  }
+
+  void _loadProfileIcon() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String profileIcon = prefs.getString('profileIcon') ?? imagePaths[0];
+    setState(() {
+      iconProfile = profileIcon;
+    });
   }
 
   void _deleteToDoItem(String id) {
@@ -161,8 +198,13 @@ class _HomeState extends State<Home> {
         todoText: toDo,
       ));
     });
+
+    // actualizo el filtro
     _saveToDos();
+    _foundToDo = todosList;
+
     _todoController.clear();
+    _filterController.clear();
   }
 
   void _runFilter(String enteredKeyword) {
@@ -176,7 +218,6 @@ class _HomeState extends State<Home> {
               .contains(enteredKeyword.toLowerCase()))
           .toList();
     }
-
     setState(() {
       _foundToDo = results;
     });
@@ -216,6 +257,7 @@ class _HomeState extends State<Home> {
           color: Colors.white, borderRadius: BorderRadius.circular(20)),
       child: TextField(
         onChanged: (value) => _runFilter(value),
+        controller: _filterController,
         decoration: InputDecoration(
           contentPadding: EdgeInsets.all(10),
           prefixIcon: Padding(
@@ -231,14 +273,18 @@ class _HomeState extends State<Home> {
   }
 }
 
-AppBar _buildAppBar(_toggleIconSelector) {
+AppBar _buildAppBar(_toggleIconSelector, {String? iconProfile}) {
   return AppBar(
     backgroundColor: tdBGColor,
     elevation: 0,
     title: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-      Icon(Icons.menu, color: tdBlack, size: 30),
       GestureDetector(
-        onTap: () {      
+          onTap: () {
+            _toggleIconSelector();
+          },
+          child: Icon(Icons.menu, color: tdBlack, size: 30)),
+      GestureDetector(
+        onTap: () {
           _toggleIconSelector();
         },
         child: Container(
@@ -246,7 +292,7 @@ AppBar _buildAppBar(_toggleIconSelector) {
             width: 40,
             child: ClipRRect(
                 borderRadius: BorderRadius.circular(20),
-                child: Image.asset('assets/images/avatar.jpg'))),
+                child: Image.asset(iconProfile!))),
       )
     ]),
   );
