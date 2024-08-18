@@ -11,5 +11,13 @@ const List<String> imagePaths = [
   'assets/images/icons/icon10.png',
   'assets/images/icons/icon11.png',
   'assets/images/icons/icon12.png',
-  // Agrega más rutas de imágenes según sea necesario
+  'assets/images/icons/icon13.png',
+  'assets/images/icons/icon14.png',
+  'assets/images/icons/icon15.png',
+  'assets/images/icons/icon16.png',
+  'assets/images/icons/icon17.png',
+  'assets/images/icons/icon18.png',
+  'assets/images/icons/icon1.png',
+  'assets/images/icons/icon2.png',
+  'assets/images/icons/icon3.png',
 ];

@@ -30,31 +30,39 @@ class IconSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Center(
-        child: Container(
-          constraints: BoxConstraints(
-            maxWidth: 400,
-          ),
-          // lo posiciono en el centro
-
-          padding: EdgeInsets.all(10),
-          margin: EdgeInsets.symmetric(horizontal: 15, vertical: 50),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.withOpacity(1),
-                spreadRadius: 2,
-                blurRadius: 5,
-                offset: Offset(0, 3),
+    return Center(
+      child: Container(
+        constraints: BoxConstraints(
+          maxWidth: 400,
+          maxHeight: 500,
+        ),
+        padding: EdgeInsets.all(10),
+        margin: EdgeInsets.symmetric(horizontal: 15, vertical: 50),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(1),
+              spreadRadius: 2,
+              blurRadius: 5,
+              offset: Offset(0, 3),
+            ),
+          ],
+        ),
+        child: Column(
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                // borde gris abajo solo
+                border: Border(
+                  bottom: BorderSide(
+                    color: Colors.grey[300]!,
+                    width: 2,
+                  ),
+                ),
               ),
-            ],
-          ),
-          child: Column(
-            children: [
-              Row(
+              child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Container(
@@ -65,6 +73,7 @@ class IconSelector extends StatelessWidget {
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
                         color: tdBlack,
+                        fontStyle: FontStyle.italic,
                         decoration: TextDecoration.none,
                       ),
                     ),
@@ -86,47 +95,53 @@ class IconSelector extends StatelessWidget {
                   ),
                 ],
               ),
-              Container(
-                margin: EdgeInsets.symmetric(horizontal: 15, vertical: 20),
-                padding: EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: GridView.builder(
-                  shrinkWrap: true,
-                  physics: NeverScrollableScrollPhysics(),
-                  itemCount: imagePaths.length,
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 3, // Número de columnas en el grid
-                    mainAxisSpacing: 20,
-                    crossAxisSpacing: 5,
+            ),
+            Expanded(
+              child: SingleChildScrollView(
+                child: Container(
+                  margin: EdgeInsets.symmetric(horizontal: 15, vertical: 20),
+                  padding: EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20),
                   ),
-                  itemBuilder: (context, index) {
-                    return GestureDetector(
-                      onTap: () {
-                        _iconSelectorHandler(imagePaths[index]);
-                      },
-                      child: Container(
-                        padding: EdgeInsets.all(5),
-                        decoration: BoxDecoration(
-                          color: icon == imagePaths[index]
-                              ? const Color.fromARGB(255, 255, 232, 27)
-                              : Colors.transparent,
-                          borderRadius: BorderRadius.circular(50),
+                  child: GridView.builder(
+                    shrinkWrap:
+                        true, // Ajusta el tamaño del GridView a su contenido
+                    physics:
+                        NeverScrollableScrollPhysics(), // Desactiva el scroll de GridView
+                    itemCount: imagePaths.length,
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 3, // Número de columnas en el grid
+                      mainAxisSpacing: 20,
+                      crossAxisSpacing: 5,
+                    ),
+                    itemBuilder: (context, index) {
+                      return GestureDetector(
+                        onTap: () {
+                          _iconSelectorHandler(imagePaths[index]);
+                        },
+                        child: Container(
+                          padding: EdgeInsets.all(5),
+                          decoration: BoxDecoration(
+                            color: icon == imagePaths[index]
+                                ? const Color.fromARGB(255, 255, 232, 27)
+                                : Colors.transparent,
+                            borderRadius: BorderRadius.circular(50),
+                          ),
+                          child: Image.asset(
+                            imagePaths[index],
+                            width: 50,
+                            height: 50,
+                          ),
                         ),
-                        child: Image.asset(
-                          imagePaths[index],
-                          width: 50,
-                          height: 50,
-                        ),
-                      ),
-                    );
-                  },
+                      );
+                    },
+                  ),
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

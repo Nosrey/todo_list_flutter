@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import '../constants/colors.dart';
 import '../widgets/todo_item.dart';
 import '../model/todo.dart';
@@ -44,6 +45,7 @@ class _HomeState extends State<Home> {
           body: Stack(
             children: [
               Container(
+                margin: EdgeInsets.only(bottom: 80),
                 padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
                 child: Column(
                   children: [
@@ -54,20 +56,44 @@ class _HomeState extends State<Home> {
                           Container(
                             margin: EdgeInsets.only(top: 50, bottom: 20),
                             child: Text(
-                              'Lista de tareas',
+                              'Mis tareas',
                               style: TextStyle(
                                 fontSize: 30,
                                 fontWeight: FontWeight.w500,
+                                // italic la letra
+                                fontStyle: FontStyle.italic,
+                                color: tdBlack,
                               ),
                             ),
                           ),
                           if (_foundToDo.isEmpty)
-                            Center(
-                              child: Text(
-                                'Sin tareas aún',
-                                style: TextStyle(
-                                  fontSize: 20,
-                                  color: tdGrey,
+                            Container(
+                              margin: EdgeInsets.only(top: 50),
+                              child: Center(
+                                child: Column(
+                                  children: [
+                                    Text(
+                                      'Sin tareas aún',
+                                      style: TextStyle(
+                                        fontSize: 20,
+                                        color: tdGrey,
+                                        fontStyle: FontStyle.italic,
+                                      ),
+                                    ),
+                                    Container(
+                                      margin: EdgeInsets.only(top: 20),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Image.asset(
+                                            'assets/images/arrow.png',
+                                            height: 150,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             )
@@ -85,59 +111,60 @@ class _HomeState extends State<Home> {
                 ),
               ),
               Align(
-                  alignment: Alignment.bottomCenter,
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Container(
-                          margin:
-                              EdgeInsets.only(bottom: 20, right: 20, left: 20),
-                          padding:
-                              EdgeInsets.symmetric(horizontal: 20, vertical: 5),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            boxShadow: const [
-                              BoxShadow(
-                                color: Colors.grey,
-                                offset: Offset(0.0, 0.0),
-                                blurRadius: 10.0,
-                                spreadRadius: 0.0,
-                              ),
-                            ],
+                alignment: Alignment.bottomCenter,
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        margin:
+                            EdgeInsets.only(bottom: 20, right: 20, left: 20),
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          boxShadow: const [
+                            BoxShadow(
+                              color: Colors.grey,
+                              offset: Offset(0.0, 0.0),
+                              blurRadius: 10.0,
+                              spreadRadius: 0.0,
+                            ),
+                          ],
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: TextField(
+                          controller: _todoController,
+                          decoration: InputDecoration(
+                            hintText: 'Añadir nueva tarea',
+                            border: InputBorder.none,
+                          ),
+                        ),
+                      ),
+                    ),
+                    Container(
+                      width: 60,
+                      height: 60,
+                      margin: EdgeInsets.only(bottom: 20, right: 20),
+                      padding: EdgeInsets.all(0),
+                      child: ElevatedButton(
+                        child: Image.asset('assets/images/plus.png'),
+                        onPressed: () {
+                          _addToDoItem(_todoController.text);
+                        },
+                        style: ElevatedButton.styleFrom(
+                          minimumSize: Size(60, 60),
+                          backgroundColor: tdBlue,
+                          elevation: 10,
+                          padding: EdgeInsets.symmetric(horizontal: 20),
+                          shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10),
                           ),
-                          child: TextField(
-                            controller: _todoController,
-                            decoration: InputDecoration(
-                              hintText: 'Add a new todo item',
-                              border: InputBorder.none,
-                            ),
-                          ),
                         ),
                       ),
-                      Container(
-                        width: 60,
-                        height: 60,
-                        margin: EdgeInsets.only(bottom: 20, right: 20),
-                        padding: EdgeInsets.all(0),
-                        child: ElevatedButton(
-                          child: Image.asset('assets/images/plus.png'),
-                          onPressed: () {
-                            _addToDoItem(_todoController.text);
-                          },
-                          style: ElevatedButton.styleFrom(
-                            minimumSize: Size(60, 60),
-                            backgroundColor: tdBlue,
-                            elevation: 10,
-                            padding: EdgeInsets.symmetric(horizontal: 20),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  )),
+                    ),
+                  ],
+                ),
+              ),
             ],
           ),
         ),
