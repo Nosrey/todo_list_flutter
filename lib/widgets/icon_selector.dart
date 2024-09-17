@@ -53,6 +53,7 @@ class IconSelector extends StatelessWidget {
         child: Column(
           children: [
             Container(
+              padding: EdgeInsets.only(bottom: 10),
               decoration: BoxDecoration(
                 // borde gris abajo solo
                 border: Border(

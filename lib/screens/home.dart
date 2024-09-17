@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:mi_lista_de_tareas/services/local_notification_service.dart';
 import '../constants/colors.dart';
 import '../widgets/todo_item.dart';
 import '../model/todo.dart';
@@ -7,6 +9,7 @@ import '../widgets/icon_selector.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert'; // Asegúrate de importar esta librería
 import '../constants/icons.dart'; // Asegúrate de importar esta librería
+// import 'package:awesome_notifications/awesome_notifications.dart';
 
 class Home extends StatefulWidget {
   Home({super.key});
@@ -16,6 +19,8 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+  late final LocalNotificationService service;
+
   bool _isIconSelectorVisible = false;
   final todosList = ToDo.todoList();
   // declaro la variable iconProfile de donde de imagePaths tomo la primera del array
@@ -24,9 +29,32 @@ class _HomeState extends State<Home> {
   final _todoController = TextEditingController();
   final _filterController = TextEditingController();
 
+
+  Future<void> _requestPermissions() async {
+    // Solicitar permiso para notificaciones
+    if (await Permission.notification.isDenied) {
+      await Permission.notification.request();
+    }
+
+    // Solicitar permiso para alarmas exactas en Android 12+
+    if (await Permission.scheduleExactAlarm.isDenied) {
+      await Permission.scheduleExactAlarm.request();
+    }
+  }
+
   @override
   void initState() {
+    service = LocalNotificationService();
+    _requestPermissions();
+    service.initialize();
     super.initState();
+    // AwesomeNotifications().isNotificationAllowed().then((isAllowed) {
+    //   if (!isAllowed) {
+    //     // This is just an example. You can show a dialog or any other UI element to request permission.
+    //     AwesomeNotifications().requestPermissionToSendNotifications();
+    //   }
+    // });
+
     _loadToDos();
     _loadProfileIcon();
     _foundToDo = todosList;
@@ -134,6 +162,7 @@ class _HomeState extends State<Home> {
                         ),
                         child: TextField(
                           controller: _todoController,
+                          onChanged: (value) => _todoTextFormatter(value),
                           decoration: InputDecoration(
                             hintText: 'Añadir nueva tarea',
                             border: InputBorder.none,
@@ -148,7 +177,14 @@ class _HomeState extends State<Home> {
                       padding: EdgeInsets.all(0),
                       child: ElevatedButton(
                         child: Image.asset('assets/images/plus.png'),
-                        onPressed: () {
+                        onPressed: () async {
+                          // scheduleNotification();
+                          await service.showScheduledNotification(
+                            id: 0,
+                            title: 'Nueva tarea',
+                            body: 'Se ha añadido una nueva tarea',
+                            seconds: 5,
+                          );
                           _addToDoItem(_todoController.text);
                         },
                         style: ElevatedButton.styleFrom(
@@ -206,6 +242,23 @@ class _HomeState extends State<Home> {
       iconProfile = profileIcon;
     });
   }
+
+  // creo una funcion para que se ejecute usando flutter_local_notifications tambien
+  // void scheduleNotification() async {
+  //   print('Notification scheduled');
+  //   AwesomeNotifications().createNotification(
+  //     content: NotificationContent(
+  //       id: 10,
+  //       channelKey: 'basic_channel',
+  //       title: 'Nueva tarea 10',
+  //       color: Colors.red,
+  //       body: 'Se ha añadido una nueva tarea',
+  //       notificationLayout: NotificationLayout.BigPicture,
+  //       largeIcon: 'resource://drawable/res_app_icon',
+  //       icon: 'resource://drawable/res_app_icon',
+  //     ),
+  //   );
+  // }
 
   void _deleteToDoItem(String id) {
     setState(() {
@@ -277,13 +330,48 @@ class _HomeState extends State<Home> {
     });
   }
 
+  // hago una funcion para que al escribir en el _todoController la primera letra siempre será mayuscula y que se muestre en el teclado de telefono como que será mayuscula
+  void _todoTextFormatter(String text) {
+    if (text.length == 1) {
+      _todoController.value = TextEditingValue(
+        text: text.toUpperCase(),
+        selection: TextSelection.collapsed(offset: 1),
+      );
+    }
+  }
+
+  void _filterFormatter(String text) {
+    if (text.length == 1) {
+      _filterController.value = TextEditingValue(
+        text: text.toUpperCase(),
+        selection: TextSelection.collapsed(offset: 1),
+      );
+    }
+    _runFilter(text);
+  }
+
+  // void triggerNotification() {
+  //   AwesomeNotifications().createNotification(
+  //     content: NotificationContent(
+  //       id: 10,
+  //       channelKey: 'basic_channel',
+  //       title: 'Nueva tarea 6',
+  //       color: Colors.red,
+  //       body: 'Se ha añadido una nueva tarea',
+  //       notificationLayout: NotificationLayout.BigPicture,
+  //       largeIcon: 'resource://drawable/res_app_icon',
+  //       icon: 'resource://drawable/res_app_icon',
+  //     ),
+  //   );
+  // }
+
   Widget searchBox() {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 15),
       decoration: BoxDecoration(
           color: Colors.white, borderRadius: BorderRadius.circular(20)),
       child: TextField(
-        onChanged: (value) => _runFilter(value),
+        onChanged: (value) => _filterFormatter(value),
         controller: _filterController,
         decoration: InputDecoration(
           contentPadding: EdgeInsets.all(10),
@@ -292,7 +380,7 @@ class _HomeState extends State<Home> {
               child: Icon(Icons.search, color: tdBlack, size: 20)),
           prefixIconConstraints: BoxConstraints(maxHeight: 20, minWidth: 25),
           border: InputBorder.none,
-          hintText: 'Search',
+          hintText: 'Buscar',
           hintStyle: TextStyle(color: tdGrey),
         ),
       ),
